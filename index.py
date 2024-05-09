@@ -59,7 +59,7 @@ def identify_leads_to_delete(leads,headers):
 
 def delete_duplicated_leads(inputs):
 
-    url = "https://api.hubapi.com//crm/v3/objects/leads/batch/archive"
+    url = "https://api.hubapi.com/crm/v3/objects/leads/batch/archive"
 
     payload = json.dumps({
     "inputs": inputs
@@ -92,7 +92,12 @@ contacts_with_duplicated_leads = [[{'id': lead_id} for lead_id in set(lead['id']
 
 for leads in contacts_with_duplicated_leads:
     identify_leads_to_delete(leads,headers)
-print("Number of leads to delete:")
+print("Number of leads to delete")
 print(len(leads_ids_to_delete))
-leads_ids_to_delete_inputs = [{'id': item} for item in leads_ids_to_delete]
-delete_duplicated_leads(leads_ids_to_delete_inputs)
+leads_batch_size = 100
+print("Deleting leads...")
+for i in range(0, len(leads_ids_to_delete), leads_batch_size):
+    leads_batch = leads_ids_to_delete[i:i+leads_batch_size]
+    leads_ids_to_delete_inputs_batch = [{'id': item} for item in leads_batch]
+    delete_duplicated_leads(leads_ids_to_delete_inputs_batch)
+print("All duplicated leads deleted!")
